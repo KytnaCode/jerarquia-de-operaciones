@@ -26,8 +26,8 @@ describe('Lexer', () => {
     ['>=', TokenType.EqualOrGreaterThan, '>=', 'Equal or greather than'],
     ['<=', TokenType.EqualOrLessThan, '<=', 'Equal or less than'],
     ['>', TokenType.GreaterThan, '>', 'Greater than'],
-    ['<', TokenType.LessThan, "<", 'Less than'],
-    ['~', TokenType.Similar, "~", 'Similar'],
+    ['<', TokenType.LessThan, '<', 'Less than'],
+    ['~', TokenType.Similar, '~', 'Similar'],
   ])(
     "'%s' should return a token of type '%s', value %s and name '%s'",
     (text, expectedType, expectedValue) => {
@@ -74,21 +74,15 @@ describe('Lexer', () => {
     expect(tokens).toHaveLength(expected);
   });
 
-  test.each([
-    [0],
-    [1],
-    [2],
-    [3],
-    [4],
-  ])("should return %i lines", (lines) => {
-    const input = "\n".repeat(lines);
+  test.each([[0], [1], [2], [3], [4]])('should return %i lines', lines => {
+    const input = '\n'.repeat(lines);
 
-    const lexer = new Lexer(input)
+    const lexer = new Lexer(input);
 
     for (let i = 0; i <= lines; i++) {
       lexer.nextToken();
     }
 
     expect(lexer.getLine()).toBe(lines);
-  })
+  });
 });

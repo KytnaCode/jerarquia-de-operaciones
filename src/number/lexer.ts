@@ -1,8 +1,8 @@
-import { isNumber } from "./util";
+import { isNumber } from './util';
 
 /**
-  * TokenType enumerates all possible tokens
-  */
+ * TokenType enumerates all possible tokens
+ */
 export enum TokenType {
   Illegal = 'Illegal', // An unexpected token.
   EOF = 'EOF', // End of Content Token.
@@ -34,8 +34,8 @@ export enum TokenType {
 }
 
 /**
-  * TokenString map strings with their respective {@link TokenType}.
-  */
+ * TokenString map strings with their respective {@link TokenType}.
+ */
 export const TokenString = new Map([
   // EOF
   ['EOF', TokenType.EOF],
@@ -64,8 +64,8 @@ export const TokenString = new Map([
 ]);
 
 /**
-  * ComparationSymbols contains all one character symbols used for comparation. Compound symbols like '<=' or '>=' are not included.
-  */
+ * ComparationSymbols contains all one character symbols used for comparation. Compound symbols like '<=' or '>=' are not included.
+ */
 export const ComparationSymbols = [
   TokenType.Equal, // =
   TokenType.LessThan, // <
@@ -74,9 +74,9 @@ export const ComparationSymbols = [
 ];
 
 /**
-  * Token represents a lexer's token, it has two values, Token[0] is the {@link TokenType} of the token and Token[1] is its string
-  * value.
-  */
+ * Token represents a lexer's token, it has two values, Token[0] is the {@link TokenType} of the token and Token[1] is its string
+ * value.
+ */
 export type Token = [TokenType, string];
 
 /**
@@ -86,37 +86,37 @@ export type Token = [TokenType, string];
  * @param value - The new token's value: Token[1].
  */
 export function newToken(type: TokenType, value: string): Token {
-    return [type, value];
+  return [type, value];
 }
 
 /**
-  * ILexer represents an implementation of a lexer.
-  */
+ * ILexer represents an implementation of a lexer.
+ */
 export interface ILexer {
   nextToken(): Token;
 }
 
 /**
-  * Lexer converts the input expression into tokens of type {@link Token}.
-  *
-  * @example
-  * ``` 
-  * const lexer = new Lexer("1 + 2");
-  *
-  * const tokens = [];
-  * 
-  * while (true) {
-  *   const token = lexer.nextToken();
-  *
-  *   if (token[0] === TokenType.EOF) {
-  *     break;
-  *   }
-  *   
-  *  tokens.push(token); 
-  * } 
-  *
-  * console.log(tokens); // [ [ 'Number', '1' ], [ '+', '+' ], [ 'Number', '2' ] ] 
-  */
+ * Lexer converts the input expression into tokens of type {@link Token}.
+ *
+ * @example
+ * ```
+ * const lexer = new Lexer("1 + 2");
+ *
+ * const tokens = [];
+ *
+ * while (true) {
+ *   const token = lexer.nextToken();
+ *
+ *   if (token[0] === TokenType.EOF) {
+ *     break;
+ *   }
+ *
+ *  tokens.push(token);
+ * }
+ *
+ * console.log(tokens); // [ [ 'Number', '1' ], [ '+', '+' ], [ 'Number', '2' ] ]
+ */
 export class Lexer implements ILexer {
   input: string; // Input expression.
   position = 0; // Points to the current character.
@@ -125,10 +125,10 @@ export class Lexer implements ILexer {
   line = 0; // For better error reporting.
 
   /**
-    * Creates a new {@link Lexer}.
-    *
-    * @param expression - the mathematical expression to tokenize.
-    */
+   * Creates a new {@link Lexer}.
+   *
+   * @param expression - the mathematical expression to tokenize.
+   */
   constructor(expression: string) {
     this.input = expression;
 
@@ -136,12 +136,13 @@ export class Lexer implements ILexer {
   }
 
   /**
-    * readChar set `this.char` to the next character, and increment `this.position` and `this.readPosition`.
-    *
-    * When reach the end of content set `this.char` to `TokenType.EOF`.
-    */
+   * readChar set `this.char` to the next character, and increment `this.position` and `this.readPosition`.
+   *
+   * When reach the end of content set `this.char` to `TokenType.EOF`.
+   */
   private readChar() {
-    if (this.readPosition >= this.input.length) { // If reached input's end.
+    if (this.readPosition >= this.input.length) {
+      // If reached input's end.
       this.char = TokenType.EOF;
     } else {
       this.char = this.input.charAt(this.readPosition);
@@ -152,8 +153,8 @@ export class Lexer implements ILexer {
   }
 
   /**
-    * peekChar returns the next input's character without modifying `this.char`, `this.position` nor `this.readPosition`.
-    */
+   * peekChar returns the next input's character without modifying `this.char`, `this.position` nor `this.readPosition`.
+   */
   private peekChar(): string {
     if (this.readPosition >= this.input.length) {
       return TokenType.EOF;
@@ -163,8 +164,8 @@ export class Lexer implements ILexer {
   }
 
   /**
-    * lastChar returns the character just before `this.position` including whitespaces.
-    */
+   * lastChar returns the character just before `this.position` including whitespaces.
+   */
   private lastChar(): string {
     if (this.position === 0) {
       return String.fromCharCode(0); // NUL character
@@ -192,13 +193,13 @@ export class Lexer implements ILexer {
 
     return this.input.slice(position, this.readPosition);
   }
-  
+
   /**
-    * readTokenType read one character tokens.
-    *
-    * If there is a '+' or '-' symbols with a number on the right and without a number on the left, then it will be
-    * tokenized as a signed number, not an operation.
-    */
+   * readTokenType read one character tokens.
+   *
+   * If there is a '+' or '-' symbols with a number on the right and without a number on the left, then it will be
+   * tokenized as a signed number, not an operation.
+   */
   private readTokenType(): string {
     if (this.isSignedNumber()) {
       return this.readNumber(); // Read as a signed number.
@@ -208,12 +209,14 @@ export class Lexer implements ILexer {
   }
 
   /**
-    * isSignedNumber returns true is there are a number just next to a '+' or '-' symbol and the symbol does not have a number before.
-    */
+   * isSignedNumber returns true is there are a number just next to a '+' or '-' symbol and the symbol does not have a number before.
+   */
   private isSignedNumber(): boolean {
-    return (this.char === '+' || this.char === '-') &&
+    return (
+      (this.char === '+' || this.char === '-') &&
       isNumber(this.peekChar()) &&
-      !isNumber(this.lastChar());
+      !isNumber(this.lastChar())
+    );
   }
 
   /**
@@ -228,7 +231,7 @@ export class Lexer implements ILexer {
     }
 
     return this.input.slice(position, this.readPosition);
-  } 
+  }
 
   /**
    * SkipWhitespace set `this.char` to the next non whitespace character
@@ -262,7 +265,7 @@ export class Lexer implements ILexer {
       value = this.readComparation();
       tokenType = TokenString.get(value);
     } else if (tokenType) {
-      // If is a single character token, like '{', ']' or '+'. 
+      // If is a single character token, like '{', ']' or '+'.
       if (this.isSignedNumber()) {
         tokenType = TokenType.Number;
       }

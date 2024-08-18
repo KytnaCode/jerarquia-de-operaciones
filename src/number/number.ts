@@ -35,7 +35,7 @@ export type Number = [
   number: () => number,
   string: () => string,
   operationPriority: number,
-  left:  Number | null,
+  left: Number | null,
   right: Number | null,
 ];
 
@@ -75,8 +75,8 @@ export const getLevel = (num: Number | null, level: number): Number[] => {
   if (!num) return [];
   if (level <= 0) return [num];
 
-  return [ ...getLevel(num[3], level - 1), ...getLevel(num[4], level - 1) ]
-}
+  return [...getLevel(num[3], level - 1), ...getLevel(num[4], level - 1)];
+};
 
 /**
  * Identity is a helper to create a simple number without an {@link Operation}.
@@ -109,8 +109,8 @@ export const compound = (a: Number, o: Operation, b: Number): Number => [
   () => {
     // If `b` is not a simple number and its priority is less than the current one then
     // add parenthesis around `b`, ex. a = 16, b = 12 + 2, a * b -> a * (b) = a * (12 + 2).
-    if (b[2] !== -1 && b[2] < o[2]) {       
-      return o[1](numToString(a), `(${numToString(b)})`)
+    if (b[2] !== -1 && b[2] < o[2]) {
+      return o[1](numToString(a), `(${numToString(b)})`);
     }
 
     // If `a` is not a simple number and its priority  is less than the current one then
