@@ -160,6 +160,21 @@ describe('Number', () => {
     expect(nums).toHaveLength(0);
   });
 
+  test.each([
+    ['2 + 4', 1, compound(identity(2), mul, identity(4))],
+    ['79', 0, identity(79)],
+    [
+      '(7 + 2) * 192',
+      2,
+      compound(compound(identity(7), sum, identity(2)), mul, identity(192)),
+    ],
+    ['null', -1, null], // A null number will return -1.
+  ])('%s should have a depth of %i', (_, depth, num) => {
+    const actual = getDepth(num);
+
+    expect(actual).toBe(depth);
+  });
+
   test.for([
     [19, 24, 43],
     [0, 0, 0],

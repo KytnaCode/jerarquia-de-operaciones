@@ -79,6 +79,38 @@ export const getLevel = (num: Number | null, level: number): Number[] => {
 };
 
 /**
+ * getDepth get the level of most nested numbers inside num, the returned level will contain only identity numbers.
+ *
+ * @example
+ * ```
+ * const num = compound( // 0
+ *   identity(24), // 1
+ *   mul,
+ *   compoundFromValues( // 1
+ *     128, // 2
+ *     sum,
+ *     254 // 2
+ *   )
+ * );
+ *
+ * const depth = getDepth(num);
+ *
+ * console.log(depth) // 2
+ * ```
+ *
+ * @remarks
+ * A null number will return -1.
+ */
+export const getDepth = (num: Number | null, level: number = -1): number => {
+  if (!num) return level;
+
+  return Math.max(
+    getDepth(num[3], level + 1), // Left's depth
+    getDepth(num[4], level + 1), // Right's depth
+  );
+};
+
+/**
  * Identity is a helper to create a simple number without an {@link Operation}.
  *
  * @param a - the number to be used as numeric value, the string representation will be `${a}`;
