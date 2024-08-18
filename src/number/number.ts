@@ -34,7 +34,7 @@ export type Operation = [
 export type Number = [
   number: () => number,
   string: () => string,
-  operationPriority: number,
+  operation: Operation | null,
   left: Number | null,
   right: Number | null,
 ];
@@ -110,6 +110,22 @@ export const getDepth = (num: Number | null, level: number = -1): number => {
   );
 };
 
+export const evaluateLevel = (num: Number, level: number): Number => {
+  const operation = num[2];
+  const left = num[3];
+  const right = num[4];
+
+  if (!left || !right || !operation) return num;
+
+  if (level === 0) return identity(num[0]());
+
+  return compound(
+    evaluateLevel(left, level - 1),
+    operation,
+    evaluateLevel(right, level - 1),
+  );
+};
+
 /**
  * Identity is a helper to create a simple number without an {@link Operation}.
  *
@@ -121,7 +137,7 @@ export const getDepth = (num: Number | null, level: number = -1): number => {
  * ```
  */
 export const identity = (a: number): Number => {
-  return [() => a, () => `${a}`, -1, null, null];
+  return [() => a, () => `${a}`, null, null, null];
 };
 
 /**
@@ -139,22 +155,25 @@ export const identity = (a: number): Number => {
 export const compound = (a: Number, o: Operation, b: Number): Number => [
   () => o[0](get(a), get(b)),
   () => {
+    const leftOperation = a[2];
+    const rightOperation = b[2];
+
     // If `b` is not a simple number and its priority is less than the current one then
     // add parenthesis around `b`, ex. a = 16, b = 12 + 2, a * b -> a * (b) = a * (12 + 2).
-    if (b[2] !== -1 && b[2] < o[2]) {
+    if (rightOperation !== null && rightOperation[2] < o[2]) {
       return o[1](numToString(a), `(${numToString(b)})`);
     }
 
     // If `a` is not a simple number and its priority  is less than the current one then
     // add parenthesis around `a`, ex. a = 27 + 9, b = 5, a * b -> (a) * b = (27 + 9) * 5.
-    if (a[2] !== -1 && a[2] < o[2]) {
+    if (leftOperation !== null && leftOperation[2] < o[2]) {
       return o[1](`(${numToString(a)})`, numToString(b));
     }
 
     // If both `a` and `b` are simple numbers or have the same priority just pass as they are. ex a = 16, b 9, a + b = 16 + 9.
     return o[1](numToString(a), numToString(b));
   },
-  o[2],
+  o,
   a,
   b,
 ];

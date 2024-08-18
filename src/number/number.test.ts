@@ -14,6 +14,7 @@ import {
   numToString,
   getLevel,
   getDepth,
+  evaluateLevel,
 } from './number';
 
 describe('Number', () => {
@@ -173,6 +174,21 @@ describe('Number', () => {
     const actual = getDepth(num);
 
     expect(actual).toBe(depth);
+  });
+
+  test.each([
+    ['2 + 4', 0, '6', compoundFromValues(2, sum, 4)],
+    ['3', 0, '3', identity(3)],
+    [
+      '8 + (9 - 1)',
+      1,
+      '8 + 8',
+      compound(identity(8), sum, compoundFromValues(9, sub, 1)),
+    ],
+  ])('%s should evaluate level %i and return %s', (_, level, expected, num) => {
+    const actual = evaluateLevel(num, level);
+
+    expect(actual[1]()).toBe(expected);
   });
 
   test.for([
