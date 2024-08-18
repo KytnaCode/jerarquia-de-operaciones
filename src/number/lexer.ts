@@ -156,22 +156,52 @@ export class Lexer {
   }
 
   /**
-    * readComparation return a string of comparation symbols from the current `this.position`. This function support multi-symbol
-    * comparations like '>=' or '<='.
-    *
-    * Can read undefined comparators like '>>', '><' or '=~', but if the comparator is not in @{link TokenType} enum
-    * its token type will be `TokenType.Illegal`.
+    * lastChar returns the character just before `this.position` including whitespaces.
     */
+  private lastChar(): string {
+    if (this.position === 0) {
+      return String.fromCharCode(0); // NUL character
+    }
+
+    return this.input.charAt(this.position - 1);
+  }
+
+  /**
+   * readComparation return a string of comparation symbols from the current `this.position`. This function support multi-symbol
+   * comparations like '>=' or '<='.
+   *
+   * Can read undefined comparators like '>>', '><' or '=~', but if the comparator is not in @{link TokenType} enum
+   * its token type will be `TokenType.Illegal`.
+   */
   private readComparation(): string {
     const position = this.position; // Start position.
     let nextType = TokenString.get(this.peekChar());
 
-    while (nextType && ComparationSymbols.includes(nextType)) { // Check if the next character is a comparation symbol.
+    while (nextType && ComparationSymbols.includes(nextType)) {
+      // Check if the next character is a comparation symbol.
       this.readChar();
       nextType = TokenString.get(this.peekChar());
     }
 
     return this.input.slice(position, this.readPosition);
+  }
+  
+  /**
+    * readTokenType read one character tokens.
+    *
+    * If there is a '+' or '-' symbols with a number on the right and without a number on the left, then it will be
+    * tokenized as a signed number, not an operation.
+    */
+  private readTokenType(): string {
+    if (
+      (this.char === '+' || this.char === '-') &&
+      isNumber(this.peekChar()) &&
+      !isNumber(this.lastChar())
+    ) {
+      return this.readNumber(); // Read as a signed number.
+    }
+
+    return this.char;
   }
 
   /**
@@ -215,12 +245,15 @@ export class Lexer {
     let tokenType = TokenString.get(this.char);
     let value = this.char;
 
-    if (tokenType && ComparationSymbols.includes(tokenType)) {  // If the character is a comparation.
+    if (tokenType && ComparationSymbols.includes(tokenType)) {
+      // If the character is a comparation.
       value = this.readComparation();
       tokenType = TokenString.get(value);
-    } else if (tokenType) { // If is a single character token, like '{', ']' or '+'.
-      value = this.char;
-    } else if (isNumber(this.char)) { // If is a number literal.
+    } else if (tokenType) {
+      // If is a single character token, like '{', ']' or '+'.
+      value = this.readTokenType();
+    } else if (isNumber(this.char)) {
+      // If is a number literal.
       value = this.readNumber();
       tokenType = value === '' ? TokenType.Illegal : TokenType.Number;
     }

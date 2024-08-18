@@ -51,7 +51,11 @@ describe('Lexer', () => {
     ['12+3', 3],
     ['9*(2-1)', 7],
     ['9*9*9', 5],
-    ['{10+[5+(2+1)]}', 13]
+    ['{10+[5+(2+1)]}', 13],
+    ['-10', 1],
+    ['10 + (-10)', 5],
+    ['-10-10-10', 5],
+    ['+10', 1],
   ])('"%s" input should return %i amount of tokens', (input, expected) => {
     const lexer = new Lexer(input);
 
