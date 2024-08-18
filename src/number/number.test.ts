@@ -74,7 +74,21 @@ describe('Number', () => {
       expect(actual).toBe(expected);
     });
 
-    test('compound should return the correct string representation of an expression that needs agroupation signs', () => {
+    test('compound should return the correct string of an expression that starts with a group', () => {
+      const a = 19538;
+      const b = 294105;
+      const c = 78522;
+      const expected = `(${b} - ${c}) * ${a}`;
+
+      // Notice that the entire subtraction is the first number of this number.
+      const actual = numToString(
+        compound(compoundFromValues(b, sub, c), mul, identity(a)), // String representation should automatically add parenthesis here.
+      );
+
+      expect(actual).toBe(expected);
+    });
+
+    test('compound should return the correct string of an expression that ends with a group', () => {
       const a = 19538;
       const b = 294105;
       const c = 78522;
@@ -82,11 +96,11 @@ describe('Number', () => {
 
       // Notice that the entire subtraction is the second number of this number.
       const actual = numToString(
-        compound(identity(a), mul, compoundFromValues(b, sub, c)), // String representation should automatically add parenthesis here.
+        compound(identity(a), mul, compoundFromValues(b, sub, c)) // String representation should automatically add parenthesis here.
       );
 
       expect(actual).toBe(expected);
-    });
+   })
   });
 
   test.for([

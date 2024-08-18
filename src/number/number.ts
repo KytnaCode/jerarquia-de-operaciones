@@ -97,10 +97,22 @@ export const identity = (a: number): Number => {
  */
 export const compound = (a: Number, o: Operation, b: Number): Number => [
   () => o[0](get(a), get(b)),
-  () =>
-    b[2] != -1 && b[2] < o[2] // If the second operand is not a simple number, and its priority is less than that of this number then:
-      ? o[1](numToString(a), `(${numToString(b)})`) // Add the necessary parenthesis.
-      : o[1](numToString(a), numToString(b)), // If not just pass the strings as they are.
+  () => {
+    // If `b` is not a simple number and its priority is less than the current one then
+    // add parenthesis around `b`, ex. a = 16, b = 12 + 2, a * b -> a * (b) = a * (12 + 2).
+    if (b[2] !== -1 && b[2] < o[2]) {       
+      return o[1](numToString(a), `(${numToString(b)})`)
+    }
+
+    // If `a` is not a simple number and its priority  is less than the current one then
+    // add parenthesis around `a`, ex. a = 27 + 9, b = 5, a * b -> (a) * b = (27 + 9) * 5.
+    if (a[2] !== -1 && a[2] < o[2]) {
+      return o[1](`(${numToString(a)})`, numToString(b));
+    }
+
+    // If both `a` and `b` are simple numbers or have the same priority just pass as they are. ex a = 16, b 9, a + b = 16 + 9.
+    return o[1](numToString(a), numToString(b));
+  },
   o[2],
 ];
 
