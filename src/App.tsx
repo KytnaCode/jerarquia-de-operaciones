@@ -1,12 +1,24 @@
 import { twMerge } from 'tailwind-merge';
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { IoMdSunny, IoIosMoon } from 'react-icons/io';
+import NumberValue from './components/numberValue';
+import InsertNumber from './components/insertNumber';
+import { getDepth, identity, Number } from './number/number';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [page, setPage] = useState('');
+  const [num, setNum] = useState(identity(0));
+  const [solving, setSolving] = useState(false);
+  const [step, setStep] = useState(getDepth(num));
+  const [id, setId] = useState(0);
+
+  const numberValues = useMemo(
+    () => Array.from(Array(getDepth(num) + 1 - step)),
+    [num, step],
+  );
 
   useEffect(() => {
     const onLocationChange = () => {
@@ -19,6 +31,32 @@ function App() {
       window.removeEventListener('popstate', onLocationChange);
     };
   }, []);
+
+  const handleSetNum = (num: Number) => {
+    setStep(getDepth(num));
+    setNum(num);
+  };
+
+  useEffect(() => {
+    if (!solving) return;
+
+    setStep(getDepth(num));
+
+    setId(
+      setInterval(() => {
+        setStep(step => step - 1);
+      }, 1000),
+    );
+
+    return () => clearInterval(id);
+  }, [solving]);
+
+  useEffect(() => {
+    if (step <= 0) {
+      setSolving(false);
+      clearInterval(id);
+    }
+  }, [step]);
 
   return (
     <main
@@ -57,6 +95,25 @@ function App() {
                 className='text-2xl self-center'>
                 <FaGithub />
               </a>
+            </div>
+          </div>
+        )}
+        {page === '' && (
+          <div className='w-full h-full grid place-items-center'>
+            <div className='w-1/3 h-1/2 grid justify-evenly items-center'>
+              {numberValues.map((_, i) => (
+                <NumberValue
+                  num={num}
+                  resolvedLevel={getDepth(num) - i}
+                  key={i}
+                />
+              ))}
+              <InsertNumber disabled={solving} setNumber={handleSetNum} />
+              <button
+                onClick={() => setSolving(true)}
+                className='rounded-full bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-900 px-3 py-1 hover:bg-neutral-700 dark:hover:bg-neutral-300'>
+                Resolver
+              </button>
             </div>
           </div>
         )}
