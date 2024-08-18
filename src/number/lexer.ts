@@ -90,6 +90,13 @@ export function newToken(type: TokenType, value: string): Token {
 }
 
 /**
+  * ILexer represents an implementation of a lexer.
+  */
+export interface ILexer {
+  nextToken(): Token;
+}
+
+/**
   * Lexer converts the input expression into tokens of type {@link Token}.
   *
   * @example
@@ -110,7 +117,7 @@ export function newToken(type: TokenType, value: string): Token {
   *
   * console.log(tokens); // [ [ 'Number', '1' ], [ '+', '+' ], [ 'Number', '2' ] ] 
   */
-export class Lexer {
+export class Lexer implements ILexer {
   input: string; // Input expression.
   position = 0; // Points to the current character.
   readPosition = 0; // One character ahead of position.
