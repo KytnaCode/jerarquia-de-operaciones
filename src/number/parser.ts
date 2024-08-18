@@ -10,8 +10,8 @@ import {
 } from './number';
 
 /**
-  * Operations map each operation @{link TokenType} to its operation function.
-  */
+ * Operations map each operation @{link TokenType} to its operation function.
+ */
 export const Operations = new Map([
   [TokenType.Sum, sum],
   [TokenType.Sub, sub],
@@ -20,8 +20,8 @@ export const Operations = new Map([
 ]);
 
 /**
-  * GroupDelimiters map each group start symbol with its respective end symbol.
-  */
+ * GroupDelimiters map each group start symbol with its respective end symbol.
+ */
 export const GroupDelimiters = new Map([
   ['(', ')'],
   ['[', ']'],
@@ -29,17 +29,17 @@ export const GroupDelimiters = new Map([
 ]);
 
 /**
-  * Parser converts a mathematical expression into a @{link Number} type.
-  *
-  * @example
-  * ```
-  * const parser = new Parser(new Lexer("19 + 21"));
-  *
-  * const num = parser.parse();
-  *
-  * console.log(num[0]); // 40;
-  * ```
-  */
+ * Parser converts a mathematical expression into a @{link Number} type.
+ *
+ * @example
+ * ```
+ * const parser = new Parser(new Lexer("19 + 21"));
+ *
+ * const num = parser.parse();
+ *
+ * console.log(num[0]); // 40;
+ * ```
+ */
 export class Parser {
   lexer; // The internal lexer.
   last: NumberTree | undefined; // Last number parsed.
@@ -47,8 +47,8 @@ export class Parser {
   peekToken: Token; // The token next to the current token.
 
   /**
-    * Creates a new parser on base a lexer.
-    */
+   * Creates a new parser on base a lexer.
+   */
   constructor(lexer: ILexer) {
     this.lexer = lexer;
 
@@ -57,38 +57,39 @@ export class Parser {
   }
 
   /**
-    * Advance to the next token.
-    *
-    * modifies `token` and `peekToken`.
-    */
+   * Advance to the next token.
+   *
+   * modifies `token` and `peekToken`.
+   */
   private nextToken() {
     this.token = this.peekToken;
     this.peekToken = this.lexer.nextToken();
   }
 
   /**
-    * parseNumber create a {@link Number} from the the parser's current token.
-    */
+   * parseNumber create a {@link Number} from the the parser's current token.
+   */
   private parseNumber(): NumberTree {
     const num = identity(Number(this.token[1]));
 
     return num;
   }
 
-  /** 
-    * parseExpression create an @{link Number} from an expression.
-    * 
-    * @remarks
-    * ```
-    * <expression> ::= <expression> <operation> <expression> | <group-start> <expression> <group-end> | <number>
-    * <operation> ::= "+" | "-" | "*" | "/"
-    * <group-start> ::= "(" | "[" | "{"
-    * <group-end> ::= ")" | "]" | "}"                    
-    * ```
-    */
+  /**
+   * parseExpression create an @{link Number} from an expression.
+   *
+   * @remarks
+   * ```
+   * <expression> ::= <expression> <operation> <expression> | <group-start> <expression> <group-end> | <number>
+   * <operation> ::= "+" | "-" | "*" | "/"
+   * <group-start> ::= "(" | "[" | "{"
+   * <group-end> ::= ")" | "]" | "}"
+   * ```
+   */
   private parseExpression(last: NumberTree | undefined): NumberTree {
-    if (!last) { // If is a simple number.
-      return this.parseNumber(); 
+    if (!last) {
+      // If is a simple number.
+      return this.parseNumber();
     }
 
     const operation = Operations.get(this.token[0]);
@@ -99,7 +100,8 @@ export class Parser {
 
     this.nextToken();
 
-    if (Array.from(GroupDelimiters.keys()).includes(this.token[1])) { // If the next element is a group.
+    if (Array.from(GroupDelimiters.keys()).includes(this.token[1])) {
+      // If the next element is a group.
       return compound(last, operation, this.parseGroup()); // ex. 16 + ( ... ).
     }
 
@@ -107,7 +109,8 @@ export class Parser {
 
     const nextOperation = Operations.get(this.peekToken[0]);
 
-    if (nextOperation && nextOperation[2] > operation[2]) { // If the next operation's priority of the next expression is greater.
+    if (nextOperation && nextOperation[2] > operation[2]) {
+      // If the next operation's priority of the next expression is greater.
       this.nextToken(); // Advance to make `this.char` to be an operation.
       return compound(last, operation, this.parseExpression(nextNum)); // ex. 17 + 16 * 21 = 17 + (16 * 21).
     }
@@ -117,17 +120,17 @@ export class Parser {
   }
 
   /**
-    * parseGroup returns a {@link Number} from the expression inside groupping symbols
-    * 
-    * @remarks
-    * a group ends only when the expected delimiter is reached. If there is no delimiter then parser will throw an error.
-    * 
-    * ```
-    * "(" -> ")"
-    * "[" -> "]"
-    * "{" -> "}"
-    * ``` 
-    */
+   * parseGroup returns a {@link Number} from the expression inside groupping symbols
+   *
+   * @remarks
+   * a group ends only when the expected delimiter is reached. If there is no delimiter then parser will throw an error.
+   *
+   * ```
+   * "(" -> ")"
+   * "[" -> "]"
+   * "{" -> "}"
+   * ```
+   */
   private parseGroup(): NumberTree {
     const delimiter = GroupDelimiters.get(this.token[1]); // Get the respective end symbol.
 
@@ -142,7 +145,8 @@ export class Parser {
     let groupNum: NumberTree | undefined; // The first number in the expression.
 
     while (true) {
-      if (this.token[1] === delimiter) { // Stop when reached the delimiter.
+      if (this.token[1] === delimiter) {
+        // Stop when reached the delimiter.
         break;
       }
 
@@ -158,8 +162,8 @@ export class Parser {
   }
 
   /**
-    * parseValue calls the apropiate parse function on base the current token.
-    */
+   * parseValue calls the apropiate parse function on base the current token.
+   */
   private parseValue(): NumberTree {
     if (Array.from(GroupDelimiters.keys()).includes(this.token[1])) {
       return this.parseGroup();
@@ -169,8 +173,8 @@ export class Parser {
   }
 
   /**
-    * parse return an tuple of type {@link Number} representing the lexer's mathematical expression.
-    */
+   * parse return an tuple of type {@link Number} representing the lexer's mathematical expression.
+   */
   public parse(): NumberTree {
     while (true) {
       if (this.token[0] === TokenType.EOF) {
