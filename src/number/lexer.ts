@@ -193,15 +193,20 @@ export class Lexer {
     * tokenized as a signed number, not an operation.
     */
   private readTokenType(): string {
-    if (
-      (this.char === '+' || this.char === '-') &&
-      isNumber(this.peekChar()) &&
-      !isNumber(this.lastChar())
-    ) {
+    if (this.isSignedNumber()) {
       return this.readNumber(); // Read as a signed number.
     }
 
     return this.char;
+  }
+
+  /**
+    * isSignedNumber returns true is there are a number just next to a '+' or '-' symbol and the symbol does not have a number before.
+    */
+  private isSignedNumber(): boolean {
+    return (this.char === '+' || this.char === '-') &&
+      isNumber(this.peekChar()) &&
+      !isNumber(this.lastChar());
   }
 
   /**
@@ -250,7 +255,11 @@ export class Lexer {
       value = this.readComparation();
       tokenType = TokenString.get(value);
     } else if (tokenType) {
-      // If is a single character token, like '{', ']' or '+'.
+      // If is a single character token, like '{', ']' or '+'. 
+      if (this.isSignedNumber()) {
+        tokenType = TokenType.Number;
+      }
+
       value = this.readTokenType();
     } else if (isNumber(this.char)) {
       // If is a number literal.
