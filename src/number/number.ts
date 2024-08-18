@@ -35,6 +35,8 @@ export type Number = [
   number: () => number,
   string: () => string,
   operationPriority: number,
+  left:  Number | null,
+  right: Number | null,
 ];
 
 /**
@@ -69,6 +71,13 @@ export const get = (num: Number): number => num[0]();
  */
 export const numToString = (num: Number): string => num[1]();
 
+export const getLevel = (num: Number | null, level: number): Number[] => {
+  if (!num) return [];
+  if (level <= 0) return [num];
+
+  return [ ...getLevel(num[3], level - 1), ...getLevel(num[4], level - 1) ]
+}
+
 /**
  * Identity is a helper to create a simple number without an {@link Operation}.
  *
@@ -80,7 +89,7 @@ export const numToString = (num: Number): string => num[1]();
  * ```
  */
 export const identity = (a: number): Number => {
-  return [() => a, () => `${a}`, -1];
+  return [() => a, () => `${a}`, -1, null, null];
 };
 
 /**
@@ -114,6 +123,8 @@ export const compound = (a: Number, o: Operation, b: Number): Number => [
     return o[1](numToString(a), numToString(b));
   },
   o[2],
+  a,
+  b,
 ];
 
 /**
