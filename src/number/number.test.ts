@@ -12,6 +12,7 @@ import {
   div,
   sub,
   numToString,
+  getLevel,
 } from './number';
 
 describe('Number', () => {
@@ -101,6 +102,54 @@ describe('Number', () => {
 
       expect(actual).toBe(expected);
    })
+  });
+
+  test("should return a list of number at given depth", () => {
+    const values = [62, 12, 68, 6];
+
+    const num = compound( // 0
+      identity(1459), // 1
+      mul,
+      compound( // 1
+        compoundFromValues( // 2
+          values[0], // 3
+          sum,
+          values[1], // 3
+        ),
+        div,
+        compoundFromValues( // 2
+          values[2], // 3
+          sub,
+          values[3], // 3
+        ),
+      ),
+    )
+
+    const nums = getLevel(num, 3);
+
+    nums.forEach(n => {
+      expect(values).toContain(get(n))
+    })
+  });
+
+  test('should return an empty list if there are no numbers at given depth', () => {
+    const num = compound( // 0
+      compoundFromValues( // 1
+        326, // 2
+        mul,
+        279, // 2
+      ),
+      sum,
+      compoundFromValues( // 1
+        99, // 2
+        sub,
+        92, // 2
+      ),
+    );
+
+    const nums = getLevel(num, 3)
+
+    expect(nums).toHaveLength(0);
   });
 
   test.for([
