@@ -76,7 +76,9 @@ function App() {
         </button>
 
         <button className='rounded-full bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-900 px-3 py-1 hover:bg-neutral-700 dark:hover:bg-neutral-300'>
-          <a className='text-xl font-bold' href='/#about'>
+          <a
+            className='text-xl font-bold'
+            href='/jerarquia-de-operaciones/#about'>
             Más Información
           </a>
         </button>
