@@ -9,7 +9,7 @@ import { getDepth, identity, Number } from './number/number';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const [page, setPage] = useState('');
+  const [page, setPage] = useState(window.location.hash);
   const [num, setNum] = useState(identity(0));
   const [solving, setSolving] = useState(false);
   const [step, setStep] = useState(getDepth(num));
@@ -66,7 +66,7 @@ function App() {
       )}>
       <nav className='relative flex p-2 bg-none border-neutral-300 dark:border-gray-800 border-solid border-b-2 w-full justify-between items-center'>
         <h1 className='font-bold text-2xl'>
-          <a href='/'>Jerarquía de Operaciones</a>
+          <a href='/jerarquia-de-operaciones/'>Jerarquía de Operaciones</a>
         </h1>
 
         <button
