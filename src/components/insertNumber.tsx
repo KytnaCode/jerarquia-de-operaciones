@@ -33,7 +33,7 @@ export default function InsertNumber({
         disabled={disabled}
         type='text'
         value={input}
-        className='border-neutral-400 border-solid border-2 rounded px-2'
+        className='border-neutral-400 border-solid border-2 rounded px-2 dark:text-orange-900'
         onChange={e => setInput(e.target.value)}></input>
     </form>
   );
